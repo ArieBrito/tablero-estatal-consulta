@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Acciones{% endblock %}
+
+{% block content %}
+
+<main class="section">
+<div class="container">
+
+<div class="page-header">
+<h1>Reporte de Acciones</h1>
+<p class="subtitle">
+Programa de Implementación del PEA
+</p>
+</div>
+
+<form method="POST" action="{{ url_for('guardar') }}">
+
+<input type="hidden" name="estado" id="estado-input">
+
+<!-- ACTION BAR -->
+
+<div class="actions-bar">
+
+<button type="button" class="btn btn-accent" id="add-row">
++ Agregar Acción
+</button>
+
+<button type="button" id="btn-borrador" class="btn btn-secondary">
+Guardar borrador
+</button>
+
+<button type="button" id="btn-enviar" class="btn btn-primary">
+Enviar
+</button>
+
+</div>
+
+<!-- CARD -->
+
+<div class="card">
+
+<div class="card-header">
+<h3>Acciones registradas</h3>
+</div>
+
+<div class="table-wrapper">
+
+<table class="data-table">
+
+<thead>
+<tr>
+<th>Línea de Acción</th>
+<th>Estrategia</th>
+<th>Acción</th>
+<th>Fecha Inicio</th>
+<th>Fecha Fin</th>
+<th>Tipo de Acción</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="tabla-acciones">
+
+{% if acciones %}
+
+{% for a in acciones %}
+
+<tr>
+
+<td>
+<select class="form-control linea-select" name="linea_accion[]">
+
+<option value="">Seleccionar...</option>
+
+{% for linea in lineas_accion %}
+
+<option value="{{ linea }}"
+data-estrategia="{{ alineacion.get(linea, '') }}"
+{% if linea == a.linea_accion %}selected{% endif %}>
+{{ linea }}
+</option>
+
+{% endfor %}
+
+</select>
+</td>
+
+<td>
+<select class="form-control estrategia-select" name="estrategia[]">
+<option selected>{{ a.estrategia }}</option>
+</select>
+</td>
+
+<td>
+<input type="text"
+class="form-control"
+name="accion[]"
+value="{{ a.accion }}">
+</td>
+
+<td>
+<input type="date"
+class="form-control"
+name="fecha_inicio[]"
+value="{{ a.fecha_inicio }}">
+</td>
+
+<td>
+<input type="date"
+class="form-control"
+name="fecha_fin[]"
+value="{{ a.fecha_fin }}">
+</td>
+
+<td>
+<select class="form-control" name="tipo[]">
+
+<option {% if a.tipo=="Evento" %}selected{% endif %}>Evento</option>
+<option {% if a.tipo=="Entregable" %}selected{% endif %}>Entregable</option>
+<option {% if a.tipo=="Actividad" %}selected{% endif %}>Actividad</option>
+<option {% if a.tipo=="Otro" %}selected{% endif %}>Otro</option>
+
+</select>
+</td>
+
+<td class="delete-cell">
+
+<button type="button" class="icon-btn">
+<img src="{{ url_for('static', filename='assets/icons/delete.svg') }}" class="icon-delete">
+</button>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+
+<td>
+
+<select class="form-control linea-select" name="linea_accion[]">
+
+<option value="">Seleccionar...</option>
+
+{% for linea in lineas_accion %}
+
+<option value="{{ linea }}"
+data-estrategia="{{ alineacion.get(linea, '') }}">
+{{ linea }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</td>
+
+<td>
+<select class="form-control estrategia-select" name="estrategia[]">
+<option value="">Seleccionar...</option>
+</select>
+</td>
+
+<td>
+<input type="text" class="form-control" name="accion[]">
+</td>
+
+<td>
+<input type="date" class="form-control" name="fecha_inicio[]">
+</td>
+
+<td>
+<input type="date" class="form-control" name="fecha_fin[]">
+</td>
+
+<td>
+<select class="form-control" name="tipo[]">
+<option>Evento</option>
+<option>Entregable</option>
+<option>Actividad</option>
+<option>Otro</option>
+</select>
+</td>
+
+<td class="delete-cell">
+
+<button type="button" class="icon-btn">
+<img src="{{ url_for('static', filename='assets/icons/delete.svg') }}" class="icon-delete">
+</button>
+
+</td>
+
+</tr>
+
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+</form>
+
+</div>
+</main>
+
+<!-- MODAL CONFIRMAR ENVÍO -->
+
+<div class="modal-overlay" id="confirmModal">
+
+<div class="modal">
+
+<h2 class="login-title">Confirmar envío</h2>
+
+<p style="text-align:center;margin-bottom:20px;">
+¿Estás seguro de que deseas enviar las acciones?
+<br><br>
+Una vez enviadas quedarán registradas.
+</p>
+
+<div style="display:flex;gap:10px;justify-content:center;">
+
+<button class="btn btn-secondary" id="cancelEnviar">
+Cancelar
+</button>
+
+<button class="btn btn-primary" id="confirmEnviar">
+Confirmar envío
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ================= JS ================= -->
+
+<script>
+
+/* linea -> estrategia */
+
+document.addEventListener("change", function(e){
+
+if(e.target.classList.contains("linea-select")){
+
+const fila = e.target.closest("tr");
+
+const estrategiaSelect = fila.querySelector(".estrategia-select");
+
+const estrategia = e.target.selectedOptions[0].dataset.estrategia;
+
+estrategiaSelect.innerHTML = "";
+
+if(estrategia){
+
+const option = document.createElement("option");
+
+option.value = estrategia;
+option.textContent = estrategia;
+option.selected = true;
+
+estrategiaSelect.appendChild(option);
+
+}
+
+}
+
+});
+
+</script>
+
+<script>
+
+/* agregar fila */
+
+document.getElementById("add-row").addEventListener("click", function(){
+
+const tbody = document.getElementById("tabla-acciones");
+
+const primeraFila = tbody.querySelector("tr");
+
+const nuevaFila = primeraFila.cloneNode(true);
+
+nuevaFila.querySelectorAll("input").forEach(input => input.value="");
+
+nuevaFila.querySelectorAll("select").forEach(select => select.selectedIndex=0);
+
+const estrategia = nuevaFila.querySelector(".estrategia-select");
+
+estrategia.innerHTML='<option value="">Seleccionar...</option>';
+
+tbody.appendChild(nuevaFila);
+
+});
+
+</script>
+
+<script>
+
+/* eliminar fila */
+
+document.addEventListener("click", function(e){
+
+if(e.target.closest(".icon-btn")){
+
+const fila = e.target.closest("tr");
+
+const tbody = document.getElementById("tabla-acciones");
+
+if(tbody.rows.length>1){
+fila.remove();
+}
+
+}
+
+});
+
+</script>
+
+<script>
+
+/* botones guardar/enviar */
+
+const btnEnviar=document.getElementById("btn-enviar");
+const btnBorrador=document.getElementById("btn-borrador");
+
+const modalConfirm=document.getElementById("confirmModal");
+
+const cancelEnviar=document.getElementById("cancelEnviar");
+const confirmEnviar=document.getElementById("confirmEnviar");
+
+const estadoInput=document.getElementById("estado-input");
+
+const form=document.querySelector("form");
+
+
+btnBorrador.addEventListener("click", ()=>{
+
+estadoInput.value="borrador";
+form.submit();
+
+});
+
+
+btnEnviar.addEventListener("click", ()=>{
+
+modalConfirm.classList.add("active");
+document.body.style.overflow="hidden";
+
+});
+
+
+cancelEnviar.addEventListener("click", ()=>{
+
+modalConfirm.classList.remove("active");
+document.body.style.overflow="auto";
+
+});
+
+
+confirmEnviar.addEventListener("click", ()=>{
+
+estadoInput.value="enviado";
+form.submit();
+
+});
+
+</script>
+
+{% endblock %}

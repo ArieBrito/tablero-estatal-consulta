@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio | Tablero de Implementación{% endblock %}
+
+{% block body_class %}landing{% endblock %}
+
+{% block content %}
+
+<main>
+
+<section class="hero">
+
+<div class="container hero-content">
+
+<span class="hero-eyebrow">Política Estatal Anticorrupción</span>
+
+<h1>Tablero de Implementación</h1>
+
+<p class="subtitle">
+Sistema institucional de seguimiento al Programa de Implementación
+de la Política Estatal Anticorrupción. Permite a las instituciones
+ejecutoras registrar, dar seguimiento y reportar las acciones
+comprometidas en cada línea estratégica.
+</p>
+
+{% if usuario %}
+
+<div class="hero-actions">
+<a href="{{ url_for('carga') }}" class="btn btn-accent">
+Cargar información
+</a>
+</div>
+
+{% else %}
+
+<div class="hero-actions">
+<button class="btn btn-accent" id="openLoginHero">
+Iniciar sesión
+</button>
+</div>
+
+{% endif %}
+
+<div class="hero-features">
+
+<div class="feature-card">
+<h3>Registro estructurado</h3>
+<p>
+Captura de acciones alineadas a las estrategias y líneas
+de acción del Programa de Implementación.
+</p>
+</div>
+
+<div class="feature-card">
+<h3>Seguimiento institucional</h3>
+<p>
+Cada institución da seguimiento a los compromisos
+asumidos dentro del marco de la política estatal.
+</p>
+</div>
+
+<div class="feature-card">
+<h3>Reportes consolidados</h3>
+<p>
+Visión integral del avance del programa para
+fortalecer la rendición de cuentas.
+</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<!-- ================= LOGIN MODAL ================= -->
+
+{% if not usuario %}
+
+<div class="modal-overlay" id="loginModal">
+
+<div class="modal">
+
+<button class="modal-close" id="closeLogin">&times;</button>
+
+<div class="login-container">
+
+<div class="login-logo">
+<img src="{{ url_for('static', filename='assets/logo/logo.png') }}"
+     alt="Tablero de Implementación">
+</div>
+
+<h2 class="login-title">Iniciar sesión</h2>
+<p class="login-subtitle">
+Acceso para instituciones ejecutoras
+</p>
+
+{% if error %}
+<p class="login-error">{{ error }}</p>
+{% endif %}
+
+<form method="post"
+      action="{{ url_for('login') }}"
+      class="login-form">
+
+<div class="form-group">
+<input type="text"
+       name="usuario"
+       placeholder="Usuario"
+       required>
+</div>
+
+<div class="form-group password-group">
+
+<input type="password"
+       name="password"
+       id="password-input"
+       placeholder="Contraseña"
+       required>
+
+<label class="show-password">
+<input type="checkbox" id="toggle-password">
+Mostrar contraseña
+</label>
+
+</div>
+
+<button type="submit" class="btn btn-accent full-width">
+Continuar
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endif %}
+
+
+<!-- ================= JS MODAL ================= -->
+
+<script>
+
+const openBtnHeader = document.getElementById("openLogin");
+const openBtnHero = document.getElementById("openLoginHero");
+const closeBtn = document.getElementById("closeLogin");
+const modal = document.getElementById("loginModal");
+
+function abrirModal(){
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function cerrarModal(){
+    modal.classList.remove("active");
+    document.body.style.overflow = "auto";
+}
+
+if(openBtnHeader){ openBtnHeader.addEventListener("click", abrirModal); }
+if(openBtnHero){ openBtnHero.addEventListener("click", abrirModal); }
+if(closeBtn){ closeBtn.addEventListener("click", cerrarModal); }
+
+window.addEventListener("click", (e) => {
+    if(e.target === modal){ cerrarModal(); }
+});
+
+document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape"){ cerrarModal(); }
+});
+
+// Si hay error de login, abrimos el modal automáticamente
+if(document.body.dataset.loginError === "true"){
+    abrirModal();
+}
+
+</script>
+
+<script>
+
+const togglePassword = document.getElementById("toggle-password");
+const passwordInput = document.getElementById("password-input");
+
+if(togglePassword){
+    togglePassword.addEventListener("change", function(){
+        passwordInput.type = this.checked ? "text" : "password";
+    });
+}
+
+</script>
+
+{% endblock %}
