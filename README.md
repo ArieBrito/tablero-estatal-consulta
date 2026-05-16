@@ -63,8 +63,6 @@ Dentro de `static/assets/base/` deben existir:
 python app.py
 ```
 
-La aplicación queda disponible en `http://127.0.0.1:5000/`.
-
 ## Flujo de uso
 
 1. El usuario inicia sesión desde la pantalla principal.
